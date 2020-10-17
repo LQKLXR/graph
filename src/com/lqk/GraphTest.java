@@ -6,9 +6,8 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * @author lqk
  * @Date 2020/10/16
- * @Description
+ * @Description 对图算法的单元测试
  */
 public class GraphTest {
 
@@ -74,6 +73,9 @@ public class GraphTest {
         System.out.println("=============广度优先搜索结束=============");
     }
 
+    /**
+     * 拓扑排序必须构造是无环图，否则无法排序
+     */
     @Test
     public void topSortTest(){
         System.out.println();
@@ -92,5 +94,14 @@ public class GraphTest {
         System.out.println("=============无权最短路径开始=============");
         graph.unWeightPathLength("V1", "V7");
         System.out.println("=============无权最短路径结束=============");
+    }
+
+
+    @Test
+    public void dijkstraTest(){
+        System.out.println();
+        System.out.println("=============dijkstra算法开始=============");
+        graph.dijkstra("V1", "V5");
+        System.out.println("=============dijkstra算法结束=============");
     }
 }

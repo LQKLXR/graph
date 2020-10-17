@@ -74,7 +74,6 @@ public class Graph {
             throw new RuntimeException("顶点 " + toIndex + " 不存在");
         }
         edges[fromIndex][toIndex] = weight;
-        //edges[toIndex][fromIndex] = weight;
     }
 
 
@@ -152,6 +151,8 @@ public class Graph {
         // 标记是否访问过的数组
         boolean[] visited = new boolean[vertexes.size()];
         visited[startIndex] = true;
+        // 开始遍历
+        // 核心代码如下
         while (!queue.isEmpty()) {
             int curStart = queue.poll();
             for (int x : getLinkedVertexes(curStart)) {
@@ -206,8 +207,8 @@ public class Graph {
             List<Integer> linkedVertexes = getLinkedVertexes(i);
             map.put(i, linkedVertexes);
         }
-
-        // 开始排序
+        // 开始拓扑排序
+        // 核心代码如下
         for (int i = 0; i < vertexes.size(); i++) {
             int V = findNewVertexOfInDegreeZero(inDegree, visited);
             if (V == -1) {
@@ -270,6 +271,7 @@ public class Graph {
         // 广度优先搜索开始
         Queue<Integer> queue = new LinkedList<>();
         queue.offer(startIndex);
+        // 核心代码如下
         while (!queue.isEmpty()) {
             // 取出当前顶点
             int curIndex = queue.poll();
@@ -286,7 +288,82 @@ public class Graph {
         }
         // 至此获得全部的最短路径信息
 
-        // 开始输出信息, 可以封装成另一个函数
+        // 输出信息
+        printPathInfo(dis, pre, start, end);
+    }
+
+
+    /**
+     * 迪杰斯特拉求带权最短路径
+     *
+     * @param start 起始顶点
+     * @param end   目标顶点
+     */
+    public void dijkstra(String start, String end) {
+        int startIndex = vertexes.indexOf(start);
+        int endIndex = vertexes.indexOf(end);
+        if (startIndex == -1) {
+            throw new RuntimeException(start + "顶点不存在");
+        }
+        if (endIndex == -1) {
+            throw new RuntimeException(end + "顶点不存在");
+        }
+
+        // 存储到各个顶点的最短距离
+        int[] dis = new int[vertexes.size()];
+        Arrays.fill(dis, Integer.MAX_VALUE);
+        dis[startIndex] = 0;
+        // 存储各个顶点是否已知过
+        boolean[] known = new boolean[vertexes.size()];
+        // 存储路径各个顶点的上一个顶点
+        String[] pre = new String[vertexes.size()];
+        // 算法开始
+        // 核心代码如下
+        for (; ; ) {
+            int V = findSmallestUnknownVertex(dis, known);
+            // 所有的顶点都被访问过的时候
+            if (V == -1) {
+                break;
+            }
+            known[V] = true;
+            // 遍历所有的指向的顶点
+            for (int x : getLinkedVertexes(V)) {
+                // 如果该点还未知
+                if (!known[x] && dis[V] + edges[V][x] < dis[x]) {
+                    dis[x] = dis[V] + edges[V][x];
+                    pre[x] = vertexes.get(V);
+                }
+            }
+        }
+        // 至此获得最短路径信息
+
+        // 输出最短路径信息
+        printPathInfo(dis, pre, start, end);
+
+    }
+
+    /**
+     * 拿出未知的、路径最短的顶点---被迪杰斯特拉调用的工具
+     *
+     * @param dis   距离数组
+     * @param known 标记访问数组
+     * @return 顶点索引
+     */
+    private int findSmallestUnknownVertex(int[] dis, boolean[] known) {
+        int resultIndex = -1;
+        int tempDis = Integer.MAX_VALUE;
+        for (int i = 0; i < dis.length; i++) {
+            if (!known[i] && dis[i] < tempDis) {
+                resultIndex = i;
+                tempDis = dis[i];
+            }
+        }
+        return resultIndex;
+
+    }
+
+    private void printPathInfo(int[] dis, String[] pre, String start, String end){
+        int endIndex = vertexes.indexOf(end);
         System.out.println("从 " + start + " 到 " + end + " 的最短路径长为 " + dis[endIndex]);
         System.out.println("路径为：");
         Stack<String> path = new Stack<>();
@@ -300,10 +377,9 @@ public class Graph {
             }
             curIndex = vertexes.indexOf(preVertex);
         }
-        while(!path.isEmpty()){
+        while (!path.isEmpty()) {
             System.out.print("\t" + path.pop());
         }
         System.out.println();
     }
-
 }
